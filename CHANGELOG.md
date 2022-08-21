@@ -21,3 +21,6 @@
 * Initial release. API includes `getVersionStatus` and `showAlertIfNecessary` methods. Support for iOS and Android.
 #### Version Migrate
 * Update plugin
+
+## 0.0.1+1
+* Fix pub dev
