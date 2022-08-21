@@ -24,3 +24,17 @@
 
 ## 0.0.1+1
 * Fix pub dev
+
+## 0.0.1+2
+* Support old version flutter 2.5.0 it remove version 0.0.2
+
+## 0.0.1+3
+* Support old version flutter 2.5.0 it remove version 0.0.2
+
+## 0.0.1+4
+* Support old version flutter 2.5.0 it remove version 0.0.2
+
+## 0.0.2
+* Support last version of flutter
+* Update plugin :)
+* version stable
