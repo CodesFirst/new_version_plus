@@ -305,7 +305,13 @@ class NewVersionPlus {
   Future<void> launchAppStore(String appStoreLink) async {
     debugPrint(appStoreLink);
     if (await canLaunchUrl(Uri.parse(appStoreLink))) {
-      await launchUrl(Uri.parse(appStoreLink));
+      await launchUrl(
+        Uri.parse(appStoreLink),
+
+        /// [externalApplication] Passes the URL to the OS to be handled
+        /// by (Apple App Store or Google Play Store)
+        mode: LaunchMode.externalApplication,
+      );
     } else {
       throw 'Could not launch appStoreLink';
     }
