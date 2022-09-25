@@ -37,9 +37,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
     if (simpleBehavior) {
       basicStatusCheck(newVersion);
-    } else {
-      advancedStatusCheck(newVersion);
     }
+    // else {
+    //   advancedStatusCheck(newVersion);
+    // }
   }
 
   basicStatusCheck(NewVersionPlus newVersion) {
