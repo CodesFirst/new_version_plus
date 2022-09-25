@@ -139,19 +139,16 @@ class NewVersionPlus {
     }
     return VersionStatus._(
       localVersion: _getCleanVersion(packageInfo.version),
-      storeVersion:
-          _getCleanVersion(forceAppVersion ?? jsonObj['results'][0]['version']),
+      storeVersion: _getCleanVersion(forceAppVersion ?? jsonObj['results'][0]['version']),
       appStoreLink: jsonObj['results'][0]['trackViewUrl'],
       releaseNotes: jsonObj['results'][0]['releaseNotes'],
     );
   }
 
   /// Android info is fetched by parsing the html of the app store page.
-  Future<VersionStatus?> _getAndroidStoreVersion(
-      PackageInfo packageInfo) async {
+  Future<VersionStatus?> _getAndroidStoreVersion(PackageInfo packageInfo) async {
     final id = androidId ?? packageInfo.packageName;
-    final uri = Uri.https(
-        "play.google.com", "/store/apps/details", {"id": id, "hl": "en"});
+    final uri = Uri.https("play.google.com", "/store/apps/details", {"id": id, "hl": "en"});
     final response = await http.get(uri);
     if (response.statusCode != 200) {
       debugPrint('Can\'t find an app in the Play Store with the id: $id');
@@ -173,14 +170,11 @@ class NewVersionPlus {
       final releaseNotesElement = sectionElements.firstWhereOrNull(
         (elm) => elm.querySelector('.wSaTQd')!.text == 'What\'s New',
       );
-      releaseNotes = releaseNotesElement
-          ?.querySelector('.PHBdkd')
-          ?.querySelector('.DWPxHb')
-          ?.text;
+      releaseNotes = releaseNotesElement?.querySelector('.PHBdkd')?.querySelector('.DWPxHb')?.text;
     } else {
       final scriptElements = document.getElementsByTagName('script');
-      final infoScriptElement = scriptElements
-          .firstWhereOrNull((elm) => elm.text.contains('key: \'ds:5\''));
+      final infoScriptElement =
+          scriptElements.firstWhereOrNull((elm) => elm.text.contains('key: \'ds:5\''));
 
       if (infoScriptElement == null) return null;
 
@@ -212,8 +206,12 @@ class NewVersionPlus {
     required String appStoreLink,
     required bool allowDismissal,
     required BuildContext context,
+    LaunchMode launchMode = LaunchMode.platformDefault,
   }) {
-    launchAppStore(appStoreLink);
+    launchAppStore(
+      appStoreLink,
+      launchMode: launchMode,
+    );
     if (allowDismissal) {
       Navigator.of(context, rootNavigator: true).pop();
     }
@@ -234,6 +232,7 @@ class NewVersionPlus {
     bool allowDismissal = true,
     String dismissButtonText = 'Maybe Later',
     VoidCallback? dismissAction,
+    LaunchMode launchMode = LaunchMode.platformDefault,
   }) async {
     final dialogTitleWidget = Text(dialogTitle);
     final dialogTextWidget = Text(
@@ -250,6 +249,7 @@ class NewVersionPlus {
                 allowDismissal: allowDismissal,
                 context: context,
                 appStoreLink: versionStatus.appStoreLink,
+                launchMode: launchMode,
               ),
               child: updateButtonTextWidget,
             )
@@ -258,6 +258,7 @@ class NewVersionPlus {
                 allowDismissal: allowDismissal,
                 context: context,
                 appStoreLink: versionStatus.appStoreLink,
+                launchMode: launchMode,
               ),
               child: updateButtonTextWidget,
             ),
@@ -265,8 +266,7 @@ class NewVersionPlus {
 
     if (allowDismissal) {
       final dismissButtonTextWidget = Text(dismissButtonText);
-      dismissAction = dismissAction ??
-          () => Navigator.of(context, rootNavigator: true).pop();
+      dismissAction = dismissAction ?? () => Navigator.of(context, rootNavigator: true).pop();
       actions.add(
         Platform.isAndroid
             ? TextButton(
@@ -302,10 +302,14 @@ class NewVersionPlus {
   }
 
   /// Launches the Apple App Store or Google Play Store page for the app.
-  Future<void> launchAppStore(String appStoreLink) async {
+  Future<void> launchAppStore(String appStoreLink,
+      {LaunchMode launchMode = LaunchMode.platformDefault}) async {
     debugPrint(appStoreLink);
     if (await canLaunchUrl(Uri.parse(appStoreLink))) {
-      await launchUrl(Uri.parse(appStoreLink));
+      await launchUrl(
+        Uri.parse(appStoreLink),
+        mode: launchMode,
+      );
     } else {
       throw 'Could not launch appStoreLink';
     }
