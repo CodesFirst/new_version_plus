@@ -38,3 +38,7 @@
 * Support last version of flutter
 * Update plugin :)
 * version stable
+
+## 0.0.3
+* fixed URL open in web view inside the app
+* modified  file readme
