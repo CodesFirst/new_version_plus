@@ -1,15 +1,14 @@
 library new_version_plus;
 
+import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' show Platform;
 
-import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 /// Information about the app's current version, and the most recent version
 /// available in the Apple App Store or Google Play Store.
@@ -121,6 +120,17 @@ class NewVersionPlus {
   /// JSON document.
   Future<VersionStatus?> _getiOSStoreVersion(PackageInfo packageInfo) async {
     final id = iOSId ?? packageInfo.packageName;
+    final fields = await getiOSStoreVersion(id);
+
+    return VersionStatus._(
+      localVersion: _getCleanVersion(packageInfo.version),
+      storeVersion: _getCleanVersion(forceAppVersion ?? fields?.version ?? ""),
+      appStoreLink: fields?.appStoreLink.toString() ?? "",
+      releaseNotes: fields?.releaseNotes,
+    );
+  }
+
+  Future<NewVersionPlusFields?> getiOSStoreVersion(String id) async {
     final parameters = {"bundleId": id};
     if (iOSAppStoreCountry != null) {
       parameters.addAll({"country": iOSAppStoreCountry!});
@@ -137,12 +147,11 @@ class NewVersionPlus {
       debugPrint('Can\'t find an app in the App Store with the id: $id');
       return null;
     }
-    return VersionStatus._(
-      localVersion: _getCleanVersion(packageInfo.version),
-      storeVersion:
-          _getCleanVersion(forceAppVersion ?? jsonObj['results'][0]['version']),
-      appStoreLink: jsonObj['results'][0]['trackViewUrl'],
+
+    return NewVersionPlusFields(
+      version: jsonObj['results'][0]['version'],
       releaseNotes: jsonObj['results'][0]['releaseNotes'],
+      appStoreLink: Uri.parse(jsonObj['results'][0]['trackViewUrl']),
     );
   }
 
@@ -150,77 +159,33 @@ class NewVersionPlus {
   Future<VersionStatus?> _getAndroidStoreVersion(
       PackageInfo packageInfo) async {
     final id = androidId ?? packageInfo.packageName;
-    final uri = Uri.https(
-        "play.google.com", "/store/apps/details", {"id": id, "hl": "en"});
-    final response = await http.get(uri);
-    if (response.statusCode != 200) {
-      debugPrint('Can\'t find an app in the Play Store with the id: $id');
-      return null;
-    }
-    final document = parse(response.body);
-
-    String storeVersion = '0.0.0';
-    String? releaseNotes;
-
-    final additionalInfoElements = document.getElementsByClassName('hAyfc');
-    if (additionalInfoElements.isNotEmpty) {
-      final versionElement = additionalInfoElements.firstWhere(
-        (elm) => elm.querySelector('.BgcNfc')!.text == 'Current Version',
-      );
-      storeVersion = versionElement.querySelector('.htlgb')!.text;
-
-      final sectionElements = document.getElementsByClassName('W4P4ne');
-      final releaseNotesElement = sectionElements.firstWhereOrNull(
-        (elm) => elm.querySelector('.wSaTQd')!.text == 'What\'s New',
-      );
-      releaseNotes = releaseNotesElement
-          ?.querySelector('.PHBdkd')
-          ?.querySelector('.DWPxHb')
-          ?.text;
-    } else {
-      final scriptElements = document.getElementsByTagName('script');
-      final infoScriptElement = scriptElements
-          .firstWhereOrNull((elm) => elm.text.contains('key: \'ds:5\''));
-
-      if (infoScriptElement == null) return null;
-
-      final param = infoScriptElement.text
-          .substring(20, infoScriptElement.text.length - 2)
-          .replaceAll('key:', '"key":')
-          .replaceAll('hash:', '"hash":')
-          .replaceAll('data:', '"data":')
-          .replaceAll('sideChannel:', '"sideChannel":')
-          .replaceAll('\'', '"');
-      final parsed = json.decode(param);
-      final data = parsed['data'];
-      if (data.isEmpty) return null;
-      storeVersion = data[1][2][140][0][0][0];
-      releaseNotes = data[1][2][144][1][1];
-    }
+    final fields = await getAndroidStoreVersion(id);
 
     return VersionStatus._(
       localVersion: _getCleanVersion(packageInfo.version),
-      storeVersion: _getCleanVersion(forceAppVersion ?? storeVersion),
-      appStoreLink: uri.toString(),
-      releaseNotes: releaseNotes,
+      storeVersion: _getCleanVersion(forceAppVersion ?? fields?.version ?? ""),
+      appStoreLink: fields?.appStoreLink.toString() ?? "",
+      releaseNotes: fields?.releaseNotes,
     );
   }
 
-  /// Update action fun
-  /// show modal
-  void _updateActionFunc({
-    required String appStoreLink,
-    required bool allowDismissal,
-    required BuildContext context,
-    LaunchMode launchMode = LaunchMode.platformDefault,
-  }) {
-    launchAppStore(
-      appStoreLink,
-      launchMode: launchMode,
-    );
-    if (allowDismissal) {
-      Navigator.of(context, rootNavigator: true).pop();
+  Future<NewVersionPlusFields?> getAndroidStoreVersion(String id) async {
+    final uri = Uri.https("play.google.com", "/store/apps/details",
+        {"id": id.toString(), "hl": "en_US"});
+    final response = await http.get(uri);
+    debugPrint(response.body);
+    if (response.statusCode != 200) {
+      throw Exception("Invalid response code: ${response.statusCode}");
     }
+    // Supports 1.2.3 (most of the apps) and 1.2.prod.3 (e.g. Google Cloud)
+    final regexp = RegExp(r'\[\[\["(\d+\.\d+(\.[a-z]+)?\.\d+)"\]\]');
+    final storeVersion = regexp.firstMatch(response.body)?.group(1);
+
+    return NewVersionPlusFields(
+      version: storeVersion,
+      releaseNotes: null,
+      appStoreLink: uri,
+    );
   }
 
   /// Shows the user a platform-specific alert about the app update. The user
@@ -238,7 +203,6 @@ class NewVersionPlus {
     bool allowDismissal = true,
     String dismissButtonText = 'Maybe Later',
     VoidCallback? dismissAction,
-    LaunchMode launchMode = LaunchMode.platformDefault,
   }) async {
     final dialogTitleWidget = Text(dialogTitle);
     final dialogTextWidget = Text(
@@ -247,25 +211,21 @@ class NewVersionPlus {
     );
 
     final updateButtonTextWidget = Text(updateButtonText);
+    updateAction() {
+      launchAppStore(versionStatus.appStoreLink);
+      if (allowDismissal) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+    }
 
     List<Widget> actions = [
       Platform.isAndroid
           ? TextButton(
-              onPressed: () => _updateActionFunc(
-                allowDismissal: allowDismissal,
-                context: context,
-                appStoreLink: versionStatus.appStoreLink,
-                launchMode: launchMode,
-              ),
+              onPressed: updateAction,
               child: updateButtonTextWidget,
             )
           : CupertinoDialogAction(
-              onPressed: () => _updateActionFunc(
-                allowDismissal: allowDismissal,
-                context: context,
-                appStoreLink: versionStatus.appStoreLink,
-                launchMode: launchMode,
-              ),
+              onPressed: updateAction,
               child: updateButtonTextWidget,
             ),
     ];
@@ -309,16 +269,20 @@ class NewVersionPlus {
   }
 
   /// Launches the Apple App Store or Google Play Store page for the app.
-  Future<void> launchAppStore(String appStoreLink,
-      {LaunchMode launchMode = LaunchMode.platformDefault}) async {
+  Future<void> launchAppStore(String appStoreLink) async {
     debugPrint(appStoreLink);
-    if (await canLaunchUrl(Uri.parse(appStoreLink))) {
-      await launchUrl(
-        Uri.parse(appStoreLink),
-        mode: launchMode,
-      );
+    if (await canLaunchUrlString(appStoreLink)) {
+      await launchUrlString(appStoreLink);
     } else {
       throw 'Could not launch appStoreLink';
     }
   }
+}
+
+class NewVersionPlusFields {
+  final String? version;
+  final String? releaseNotes;
+  final Uri? appStoreLink;
+
+  NewVersionPlusFields({this.version, this.releaseNotes, this.appStoreLink});
 }
