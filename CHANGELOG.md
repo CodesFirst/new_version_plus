@@ -42,3 +42,8 @@
 ## 0.0.3
 * fixed URL open in web view inside the app
 * modified  file readme
+
+## 0.0.4
+* fixed Error resolving dependencies after updating package_info_plus to 2.0.0 by [Polevshchikov](https://github.com/Polevshchikov)
+* fixed get version app, now with regexpr by [mauriziopinotti](https://github.com/mauriziopinotti)
+* modified regexpr now Supports 1.2.3 (most of the apps), 1.1.3-rc-06, 1.17 and 1.2.prod.3 (e.g. Google Cloud)

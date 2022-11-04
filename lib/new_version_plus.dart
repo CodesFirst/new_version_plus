@@ -113,7 +113,7 @@ class NewVersionPlus {
   /// This function attempts to clean local version strings so they match the MAJOR.MINOR.PATCH
   /// versioning pattern, so they can be properly compared with the store version.
   String _getCleanVersion(String version) =>
-      RegExp(r'\d+\.\d+\.\d+').stringMatch(version) ?? '0.0.0';
+      RegExp(r'\d+\.\d+(\.\d+)?').stringMatch(version) ?? '0.0.0';
 
   /// iOS info is fetched by using the iTunes lookup API, which returns a
   /// JSON document.
@@ -155,7 +155,7 @@ class NewVersionPlus {
     }
     // Supports 1.2.3 (most of the apps) and 1.2.prod.3 (e.g. Google Cloud)
     //final regexp = RegExp(r'\[\[\["(\d+\.\d+(\.[a-z]+)?\.\d+)"\]\]');
-    final regexp = RegExp(r'\"(\d+\.\d+(\.[a-z]+)?\.([^"]|\\")*)\"');
+    final regexp = RegExp(r'\[\[\[\"(\d+\.\d+(\.[a-z]+)?(\.([^"]|\\")*)?)\"\]\]');
     final storeVersion = regexp.firstMatch(response.body)?.group(1);
 
     return VersionStatus._(
