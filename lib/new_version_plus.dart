@@ -3,10 +3,8 @@ library new_version_plus;
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:html/parser.dart' show parse;
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -139,70 +137,32 @@ class NewVersionPlus {
     }
     return VersionStatus._(
       localVersion: _getCleanVersion(packageInfo.version),
-      storeVersion:
-          _getCleanVersion(forceAppVersion ?? jsonObj['results'][0]['version']),
+      storeVersion: _getCleanVersion(forceAppVersion ?? jsonObj['results'][0]['version']),
       appStoreLink: jsonObj['results'][0]['trackViewUrl'],
       releaseNotes: jsonObj['results'][0]['releaseNotes'],
     );
   }
 
   /// Android info is fetched by parsing the html of the app store page.
-  Future<VersionStatus?> _getAndroidStoreVersion(
-      PackageInfo packageInfo) async {
+  Future<VersionStatus?> _getAndroidStoreVersion(PackageInfo packageInfo) async {
     final id = androidId ?? packageInfo.packageName;
-    final uri = Uri.https(
-        "play.google.com", "/store/apps/details", {"id": id, "hl": "en"});
+    final uri =
+        Uri.https("play.google.com", "/store/apps/details", {"id": id.toString(), "hl": "en_US"});
     final response = await http.get(uri);
+    debugPrint(response.body);
     if (response.statusCode != 200) {
-      debugPrint('Can\'t find an app in the Play Store with the id: $id');
-      return null;
+      throw Exception("Invalid response code: ${response.statusCode}");
     }
-    final document = parse(response.body);
-
-    String storeVersion = '0.0.0';
-    String? releaseNotes;
-
-    final additionalInfoElements = document.getElementsByClassName('hAyfc');
-    if (additionalInfoElements.isNotEmpty) {
-      final versionElement = additionalInfoElements.firstWhere(
-        (elm) => elm.querySelector('.BgcNfc')!.text == 'Current Version',
-      );
-      storeVersion = versionElement.querySelector('.htlgb')!.text;
-
-      final sectionElements = document.getElementsByClassName('W4P4ne');
-      final releaseNotesElement = sectionElements.firstWhereOrNull(
-        (elm) => elm.querySelector('.wSaTQd')!.text == 'What\'s New',
-      );
-      releaseNotes = releaseNotesElement
-          ?.querySelector('.PHBdkd')
-          ?.querySelector('.DWPxHb')
-          ?.text;
-    } else {
-      final scriptElements = document.getElementsByTagName('script');
-      final infoScriptElement = scriptElements
-          .firstWhereOrNull((elm) => elm.text.contains('key: \'ds:5\''));
-
-      if (infoScriptElement == null) return null;
-
-      final param = infoScriptElement.text
-          .substring(20, infoScriptElement.text.length - 2)
-          .replaceAll('key:', '"key":')
-          .replaceAll('hash:', '"hash":')
-          .replaceAll('data:', '"data":')
-          .replaceAll('sideChannel:', '"sideChannel":')
-          .replaceAll('\'', '"');
-      final parsed = json.decode(param);
-      final data = parsed['data'];
-      if (data.isEmpty) return null;
-      storeVersion = data[1][2][140][0][0][0];
-      releaseNotes = data[1][2][144][1][1];
-    }
+    // Supports 1.2.3 (most of the apps) and 1.2.prod.3 (e.g. Google Cloud)
+    //final regexp = RegExp(r'\[\[\["(\d+\.\d+(\.[a-z]+)?\.\d+)"\]\]');
+    final regexp = RegExp(r'\"(\d+\.\d+(\.[a-z]+)?\.([^"]|\\")*)\"');
+    final storeVersion = regexp.firstMatch(response.body)?.group(1);
 
     return VersionStatus._(
       localVersion: _getCleanVersion(packageInfo.version),
-      storeVersion: _getCleanVersion(forceAppVersion ?? storeVersion),
+      storeVersion: _getCleanVersion(forceAppVersion ?? storeVersion ?? ""),
       appStoreLink: uri.toString(),
-      releaseNotes: releaseNotes,
+      releaseNotes: null,
     );
   }
 
@@ -272,8 +232,7 @@ class NewVersionPlus {
 
     if (allowDismissal) {
       final dismissButtonTextWidget = Text(dismissButtonText);
-      dismissAction = dismissAction ??
-          () => Navigator.of(context, rootNavigator: true).pop();
+      dismissAction = dismissAction ?? () => Navigator.of(context, rootNavigator: true).pop();
       actions.add(
         Platform.isAndroid
             ? TextButton(
