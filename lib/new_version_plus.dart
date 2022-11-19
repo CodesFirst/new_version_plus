@@ -87,10 +87,21 @@ class NewVersionPlus {
 
   /// This checks the version status, then displays a platform-specific alert
   /// with buttons to dismiss the update alert, or go to the app store.
-  showAlertIfNecessary({required BuildContext context}) async {
+  showAlertIfNecessary({
+    required BuildContext context,
+    LaunchModeVersion launchModeVersion = LaunchModeVersion.normal,
+  }) async {
     final VersionStatus? versionStatus = await getVersionStatus();
+    final launchMode = launchModeVersion == LaunchModeVersion.external
+        ? LaunchMode.externalApplication
+        : LaunchMode.platformDefault;
+
     if (versionStatus != null && versionStatus.canUpdate) {
-      showUpdateDialog(context: context, versionStatus: versionStatus);
+      showUpdateDialog(
+        context: context,
+        versionStatus: versionStatus,
+        launchMode: launchMode,
+      );
     }
   }
 
@@ -137,17 +148,19 @@ class NewVersionPlus {
     }
     return VersionStatus._(
       localVersion: _getCleanVersion(packageInfo.version),
-      storeVersion: _getCleanVersion(forceAppVersion ?? jsonObj['results'][0]['version']),
+      storeVersion:
+          _getCleanVersion(forceAppVersion ?? jsonObj['results'][0]['version']),
       appStoreLink: jsonObj['results'][0]['trackViewUrl'],
       releaseNotes: jsonObj['results'][0]['releaseNotes'],
     );
   }
 
   /// Android info is fetched by parsing the html of the app store page.
-  Future<VersionStatus?> _getAndroidStoreVersion(PackageInfo packageInfo) async {
+  Future<VersionStatus?> _getAndroidStoreVersion(
+      PackageInfo packageInfo) async {
     final id = androidId ?? packageInfo.packageName;
-    final uri =
-        Uri.https("play.google.com", "/store/apps/details", {"id": id.toString(), "hl": "en_US"});
+    final uri = Uri.https("play.google.com", "/store/apps/details",
+        {"id": id.toString(), "hl": "en_US"});
     final response = await http.get(uri);
     debugPrint(response.body);
     if (response.statusCode != 200) {
@@ -155,7 +168,8 @@ class NewVersionPlus {
     }
     // Supports 1.2.3 (most of the apps) and 1.2.prod.3 (e.g. Google Cloud)
     //final regexp = RegExp(r'\[\[\["(\d+\.\d+(\.[a-z]+)?\.\d+)"\]\]');
-    final regexp = RegExp(r'\[\[\[\"(\d+\.\d+(\.[a-z]+)?(\.([^"]|\\")*)?)\"\]\]');
+    final regexp =
+        RegExp(r'\[\[\[\"(\d+\.\d+(\.[a-z]+)?(\.([^"]|\\")*)?)\"\]\]');
     final storeVersion = regexp.firstMatch(response.body)?.group(1);
 
     return VersionStatus._(
@@ -232,7 +246,8 @@ class NewVersionPlus {
 
     if (allowDismissal) {
       final dismissButtonTextWidget = Text(dismissButtonText);
-      dismissAction = dismissAction ?? () => Navigator.of(context, rootNavigator: true).pop();
+      dismissAction = dismissAction ??
+          () => Navigator.of(context, rootNavigator: true).pop();
       actions.add(
         Platform.isAndroid
             ? TextButton(
@@ -281,3 +296,5 @@ class NewVersionPlus {
     }
   }
 }
+
+enum LaunchModeVersion { normal, external }

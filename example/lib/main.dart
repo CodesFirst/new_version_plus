@@ -47,7 +47,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   basicStatusCheck(NewVersionPlus newVersion) {
-    newVersion.showAlertIfNecessary(context: context);
+    newVersion.showAlertIfNecessary(
+      context: context,
+      launchModeVersion: LaunchModeVersion.external,
+    );
   }
 
   advancedStatusCheck(NewVersionPlus newVersion) async {
