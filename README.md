@@ -3,9 +3,6 @@ Original repository: https://pub.dev/packages/new_version
 
 The problem with the original repository is that it will no longer be maintained by the creator, for this reason this repository was created in order to maintain updated code and make respective improvements as long as it is required.
 
-### Archive Notice
-This plugin is relatively stable and feature-complete, but I won't be working on it or accepting pull requests going forward. If anyone is interested in taking over as maintainer, feel free to email me. I'm also happy to link to popular forks that have spun off. Thanks.
-
 # New Version Plus Plugin 🎉
 
 A Flutter plugin that makes it possible to:
