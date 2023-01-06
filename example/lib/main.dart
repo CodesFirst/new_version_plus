@@ -30,9 +30,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // Instantiate NewVersion manager object (Using GCP Console app as example)
     final newVersion = NewVersionPlus(
-      iOSId: 'com.google.Vespa',
-      androidId: 'com.disney.disneyplus',
-    );
+        iOSId: 'com.google.Vespa',
+        androidId: 'com.disney.disneyplus',
+        androidPlayStoreCountry: "es_ES" //support country code
+        );
 
     // You can let the plugin handle fetching the status and showing a dialog,
     // or you can fetch the status and display your own dialog, or no dialog.

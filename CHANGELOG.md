@@ -48,6 +48,9 @@
 * fixed get version app, now with regexpr by [mauriziopinotti](https://github.com/mauriziopinotti)
 * modified regexpr now Supports 1.2.3 (most of the apps), 1.1.3-rc-06, 1.17 and 1.2.prod.3 (e.g. Google Cloud)
 
-# 0.0.5
+## 0.0.5
 * Add new parameter in function (showAlertIfNecessary) => LaunchModeVersion -> normal or external
 * Fix: release Note 
+
+## 0.0.6
+* Add support country code for android with var: androidPlayStoreCountry

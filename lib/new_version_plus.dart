@@ -73,6 +73,13 @@ class NewVersionPlus {
   /// See http://en.wikipedia.org/wiki/ ISO_3166-1_alpha-2 for a list of ISO Country Codes.
   final String? iOSAppStoreCountry;
 
+  /// Only affects Android Play Store lookup: The two-letter country code for the store you want to search.
+  /// Provide a value here if your app is only available outside the US.
+  /// For example: US. The default is US.
+  /// See http://en.wikipedia.org/wiki/ ISO_3166-1_alpha-2 for a list of ISO Country Codes.
+  /// see https://www.ibm.com/docs/en/radfws/9.6.1?topic=overview-locales-code-pages-supported
+  final String? androidPlayStoreCountry;
+
   /// An optional value that will force the plugin to always return [forceAppVersion]
   /// as the value of [storeVersion]. This can be useful to test the plugin's behavior
   /// before publishng a new version.
@@ -83,6 +90,7 @@ class NewVersionPlus {
     this.iOSId,
     this.iOSAppStoreCountry,
     this.forceAppVersion,
+    this.androidPlayStoreCountry,
   });
 
   /// This checks the version status, then displays a platform-specific alert
@@ -160,7 +168,7 @@ class NewVersionPlus {
       PackageInfo packageInfo) async {
     final id = androidId ?? packageInfo.packageName;
     final uri = Uri.https("play.google.com", "/store/apps/details",
-        {"id": id.toString(), "hl": "en_US"});
+        {"id": id.toString(), "hl": androidPlayStoreCountry ?? "en_US"});
     final response = await http.get(uri);
     debugPrint(response.body);
     if (response.statusCode != 200) {
