@@ -54,3 +54,6 @@
 
 ## 0.0.6
 * Add support country code for android with var: androidPlayStoreCountry
+
+## 0.0.7
+* Fix remove unicode character <br>

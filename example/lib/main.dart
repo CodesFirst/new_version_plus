@@ -24,6 +24,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String release = "";
   @override
   void initState() {
     super.initState();
@@ -37,6 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // You can let the plugin handle fetching the status and showing a dialog,
     // or you can fetch the status and display your own dialog, or no dialog.
+
     const simpleBehavior = true;
 
     if (simpleBehavior) {
@@ -47,7 +49,12 @@ class _MyHomePageState extends State<MyHomePage> {
     // }
   }
 
-  basicStatusCheck(NewVersionPlus newVersion) {
+  basicStatusCheck(NewVersionPlus newVersion) async {
+    final version = await newVersion.getVersionStatus();
+    if (version != null) {
+      release = version.releaseNotes ?? "";
+      setState(() {});
+    }
     newVersion.showAlertIfNecessary(
       context: context,
       launchModeVersion: LaunchModeVersion.external,
@@ -76,6 +83,11 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Example App"),
+      ),
+      body: SafeArea(
+        child: Center(
+          child: Text(release),
+        ),
       ),
     );
   }

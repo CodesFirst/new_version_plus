@@ -183,13 +183,15 @@ class NewVersionPlus {
     //Release
     final regexpRelease =
         RegExp(r'\[\[(null,)\"((\.[a-z]+)?(([^"]|\\")*)?)\"\]\]');
+    final expRemoveSc = RegExp(r"\\u003c[A-Za-z]{1,10}\\u003e",
+        multiLine: true, caseSensitive: true);
     final releaseNotes = regexpRelease.firstMatch(response.body)?.group(2);
 
     return VersionStatus._(
       localVersion: _getCleanVersion(packageInfo.version),
       storeVersion: _getCleanVersion(forceAppVersion ?? storeVersion ?? ""),
       appStoreLink: uri.toString(),
-      releaseNotes: releaseNotes,
+      releaseNotes: releaseNotes?.replaceAll(expRemoveSc, ''),
     );
   }
 
