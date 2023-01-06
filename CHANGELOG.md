@@ -50,3 +50,4 @@
 
 # 0.0.5
 * Add new parameter in function (showAlertIfNecessary) => LaunchModeVersion -> normal or external
+* Fix: release Note 
