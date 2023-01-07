@@ -170,7 +170,6 @@ class NewVersionPlus {
     final uri = Uri.https("play.google.com", "/store/apps/details",
         {"id": id.toString(), "hl": androidPlayStoreCountry ?? "en_US"});
     final response = await http.get(uri);
-    debugPrint(response.body);
     if (response.statusCode != 200) {
       throw Exception("Invalid response code: ${response.statusCode}");
     }
@@ -298,9 +297,10 @@ class NewVersionPlus {
   }
 
   /// Launches the Apple App Store or Google Play Store page for the app.
-  Future<void> launchAppStore(String appStoreLink,
-      {LaunchMode launchMode = LaunchMode.platformDefault}) async {
-    debugPrint(appStoreLink);
+  Future<void> launchAppStore(
+    String appStoreLink, {
+    LaunchMode launchMode = LaunchMode.platformDefault,
+  }) async {
     if (await canLaunchUrl(Uri.parse(appStoreLink))) {
       await launchUrl(
         Uri.parse(appStoreLink),
