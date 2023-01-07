@@ -57,3 +57,6 @@
 
 ## 0.0.7
 * Fix remove unicode character <br>
+
+## 0.0.8
+* Fix remove html response debug
