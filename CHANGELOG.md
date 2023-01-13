@@ -60,3 +60,6 @@
 
 ## 0.0.8
 * Fix remove html response debug
+
+## 0.0.9
+* Fix release note, now short description.

@@ -179,12 +179,18 @@ class NewVersionPlus {
         RegExp(r'\[\[\[\"(\d+\.\d+(\.[a-z]+)?(\.([^"]|\\")*)?)\"\]\]');
     final storeVersion = regexp.firstMatch(response.body)?.group(1);
 
+    //Description
+    //final regexpDescription = RegExp(r'\[\[(null,)\"((\.[a-z]+)?(([^"]|\\")*)?)\"\]\]');
+
     //Release
     final regexpRelease =
-        RegExp(r'\[\[(null,)\"((\.[a-z]+)?(([^"]|\\")*)?)\"\]\]');
+        RegExp(r'\[(null,)\[(null,)\"((\.[a-z]+)?(([^"]|\\")*)?)\"\]\]');
+
     final expRemoveSc = RegExp(r"\\u003c[A-Za-z]{1,10}\\u003e",
         multiLine: true, caseSensitive: true);
-    final releaseNotes = regexpRelease.firstMatch(response.body)?.group(2);
+
+    final releaseNotes = regexpRelease.firstMatch(response.body)?.group(3);
+    //final descriptionNotes = regexpDescription.firstMatch(response.body)?.group(2);
 
     return VersionStatus._(
       localVersion: _getCleanVersion(packageInfo.version),
