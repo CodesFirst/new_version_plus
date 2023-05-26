@@ -18,6 +18,9 @@ class VersionStatus {
   /// The most recent version of the app in the store.
   final String storeVersion;
 
+  /// The most recent version of the app in the store.
+  final String? originalStoreVersion;
+
   /// A link to the app store page where the app can be updated.
   final String appStoreLink;
 
@@ -48,11 +51,21 @@ class VersionStatus {
     return false;
   }
 
+  //Public Contructor
+  VersionStatus({
+    required this.localVersion,
+    required this.storeVersion,
+    required this.appStoreLink,
+    this.releaseNotes,
+    this.originalStoreVersion,
+  });
+
   VersionStatus._({
     required this.localVersion,
     required this.storeVersion,
     required this.appStoreLink,
     this.releaseNotes,
+    this.originalStoreVersion,
   });
 }
 
@@ -100,15 +113,13 @@ class NewVersionPlus {
     LaunchModeVersion launchModeVersion = LaunchModeVersion.normal,
   }) async {
     final VersionStatus? versionStatus = await getVersionStatus();
-    final launchMode = launchModeVersion == LaunchModeVersion.external
-        ? LaunchMode.externalApplication
-        : LaunchMode.platformDefault;
 
     if (versionStatus != null && versionStatus.canUpdate) {
+      // ignore: use_build_context_synchronously
       showUpdateDialog(
         context: context,
         versionStatus: versionStatus,
-        launchMode: launchMode,
+        launchModeVersion: launchModeVersion,
       );
     }
   }
@@ -133,6 +144,7 @@ class NewVersionPlus {
   /// versioning pattern, so they can be properly compared with the store version.
   String _getCleanVersion(String version) =>
       RegExp(r'\d+\.\d+(\.\d+)?').stringMatch(version) ?? '0.0.0';
+  //RegExp(r'\d+\.\d+(\.[a-z]+)?(\.([^"]|\\")*)?').stringMatch(version) ?? '0.0.0';
 
   /// iOS info is fetched by using the iTunes lookup API, which returns a
   /// JSON document.
@@ -158,6 +170,7 @@ class NewVersionPlus {
       localVersion: _getCleanVersion(packageInfo.version),
       storeVersion:
           _getCleanVersion(forceAppVersion ?? jsonObj['results'][0]['version']),
+      originalStoreVersion: forceAppVersion ?? jsonObj['results'][0]['version'],
       appStoreLink: jsonObj['results'][0]['trackViewUrl'],
       releaseNotes: jsonObj['results'][0]['releaseNotes'],
     );
@@ -195,6 +208,7 @@ class NewVersionPlus {
     return VersionStatus._(
       localVersion: _getCleanVersion(packageInfo.version),
       storeVersion: _getCleanVersion(forceAppVersion ?? storeVersion ?? ""),
+      originalStoreVersion: forceAppVersion ?? storeVersion ?? "",
       appStoreLink: uri.toString(),
       releaseNotes: releaseNotes?.replaceAll(expRemoveSc, ''),
     );
@@ -232,13 +246,17 @@ class NewVersionPlus {
     bool allowDismissal = true,
     String dismissButtonText = 'Maybe Later',
     VoidCallback? dismissAction,
-    LaunchMode launchMode = LaunchMode.platformDefault,
+    LaunchModeVersion launchModeVersion = LaunchModeVersion.normal,
   }) async {
     final dialogTitleWidget = Text(dialogTitle);
     final dialogTextWidget = Text(
       dialogText ??
           'You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}',
     );
+
+    final launchMode = launchModeVersion == LaunchModeVersion.external
+        ? LaunchMode.externalApplication
+        : LaunchMode.platformDefault;
 
     final updateButtonTextWidget = Text(updateButtonText);
 

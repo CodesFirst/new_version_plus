@@ -30,22 +30,26 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
 
     // Instantiate NewVersion manager object (Using GCP Console app as example)
-    final newVersion = NewVersionPlus(
-        iOSId: 'com.google.Vespa',
-        androidId: 'com.disney.disneyplus',
-        androidPlayStoreCountry: "es_ES" //support country code
+    final newVersion = NewVersionPlus(iOSId: 'com.disney.disneyplus', androidId: 'com.disney.disneyplus', androidPlayStoreCountry: "es_ES" //support country code
         );
 
     // You can let the plugin handle fetching the status and showing a dialog,
     // or you can fetch the status and display your own dialog, or no dialog.
-
+    final ver = VersionStatus(
+      appStoreLink: '',
+      localVersion: '',
+      storeVersion: '',
+      releaseNotes: '',
+      originalStoreVersion: '',
+    );
+    print(ver);
     const simpleBehavior = true;
 
-    if (simpleBehavior) {
-      basicStatusCheck(newVersion);
-    }
+    // if (simpleBehavior) {
+    basicStatusCheck(newVersion);
+    // }
     // else {
-    //   advancedStatusCheck(newVersion);
+    // advancedStatusCheck(newVersion);
     // }
   }
 
@@ -74,6 +78,8 @@ class _MyHomePageState extends State<MyHomePage> {
         versionStatus: status,
         dialogTitle: 'Custom Title',
         dialogText: 'Custom Text',
+        launchModeVersion: LaunchModeVersion.external,
+        allowDismissal: false,
       );
     }
   }

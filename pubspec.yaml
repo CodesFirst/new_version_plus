@@ -1,20 +1,20 @@
 name: new_version_plus
 description: Check if your user has the most recent version of your Flutter app.
-version: 0.0.9
+version: 0.0.10
 homepage: https://github.com/CodesFirst/new_version_plus
 
 environment:
-  sdk: ">=2.17.6 <3.0.0"
+  sdk: '>=2.19.5 <4.0.0'
   flutter: ">=1.17.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  package_info_plus: ^3.0.2
-  http: ^0.13.5
-  html: ^0.15.1
-  url_launcher: ^6.1.7
-  collection: ^1.16.0
+  package_info_plus: ^4.0.1
+  http: ^0.13.6
+  html: ^0.15.3
+  url_launcher: ^6.1.11
+  collection: ^1.17.0
 
 dev_dependencies:
   flutter_test:
