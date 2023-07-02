@@ -31,21 +31,28 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // Instantiate NewVersion manager object (Using GCP Console app as example)
     final newVersion = NewVersionPlus(
-        iOSId: 'com.google.Vespa',
+        iOSId: 'com.disney.disneyplus',
         androidId: 'com.disney.disneyplus',
         androidPlayStoreCountry: "es_ES" //support country code
         );
 
     // You can let the plugin handle fetching the status and showing a dialog,
     // or you can fetch the status and display your own dialog, or no dialog.
+    final ver = VersionStatus(
+      appStoreLink: '',
+      localVersion: '',
+      storeVersion: '',
+      releaseNotes: '',
+      originalStoreVersion: '',
+    );
+    debugPrint(ver.toString());
+    // const simpleBehavior = true;
 
-    const simpleBehavior = true;
-
-    if (simpleBehavior) {
-      basicStatusCheck(newVersion);
-    }
+    // if (simpleBehavior) {
+    basicStatusCheck(newVersion);
+    // }
     // else {
-    //   advancedStatusCheck(newVersion);
+    // advancedStatusCheck(newVersion);
     // }
   }
 
@@ -55,10 +62,12 @@ class _MyHomePageState extends State<MyHomePage> {
       release = version.releaseNotes ?? "";
       setState(() {});
     }
-    newVersion.showAlertIfNecessary(
-      context: context,
-      launchModeVersion: LaunchModeVersion.external,
-    );
+    if (context.mounted) {
+      await newVersion.showAlertIfNecessary(
+        context: context,
+        launchModeVersion: LaunchModeVersion.external,
+      );
+    }
   }
 
   advancedStatusCheck(NewVersionPlus newVersion) async {
@@ -69,12 +78,16 @@ class _MyHomePageState extends State<MyHomePage> {
       debugPrint(status.localVersion);
       debugPrint(status.storeVersion);
       debugPrint(status.canUpdate.toString());
-      newVersion.showUpdateDialog(
-        context: context,
-        versionStatus: status,
-        dialogTitle: 'Custom Title',
-        dialogText: 'Custom Text',
-      );
+      if (context.mounted) {
+        await newVersion.showUpdateDialog(
+          context: context,
+          versionStatus: status,
+          dialogTitle: 'Custom Title',
+          dialogText: 'Custom Text',
+          launchModeVersion: LaunchModeVersion.external,
+          allowDismissal: false,
+        );
+      }
     }
   }
 
