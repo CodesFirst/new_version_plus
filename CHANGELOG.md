@@ -1,5 +1,3 @@
-## 0.0.1
-
 #### Version oiginal:
 
 - #117: Make compatible with new Play Store UI
@@ -83,3 +81,8 @@
 ## 0.0.10
 
 - Add feature external app, update version package and update version sdk, VersionStatus now public.
+
+## 0.0.11
+
+- Add androidHtmlReleaseNotes for get release note in html format
+- Update package version of external plugin

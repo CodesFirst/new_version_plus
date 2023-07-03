@@ -98,12 +98,16 @@ class NewVersionPlus {
   /// before publishng a new version.
   final String? forceAppVersion;
 
+  //Html original body request
+  final bool androidHtmlReleaseNotes;
+
   NewVersionPlus({
     this.androidId,
     this.iOSId,
     this.iOSAppStoreCountry,
     this.forceAppVersion,
     this.androidPlayStoreCountry,
+    this.androidHtmlReleaseNotes = false,
   });
 
   /// This checks the version status, then displays a platform-specific alert
@@ -202,6 +206,9 @@ class NewVersionPlus {
     final expRemoveSc = RegExp(r"\\u003c[A-Za-z]{1,10}\\u003e",
         multiLine: true, caseSensitive: true);
 
+    final expRemoveQuote =
+        RegExp(r"\\u0026quot;", multiLine: true, caseSensitive: true);
+
     final releaseNotes = regexpRelease.firstMatch(response.body)?.group(3);
     //final descriptionNotes = regexpDescription.firstMatch(response.body)?.group(2);
 
@@ -210,7 +217,11 @@ class NewVersionPlus {
       storeVersion: _getCleanVersion(forceAppVersion ?? storeVersion ?? ""),
       originalStoreVersion: forceAppVersion ?? storeVersion ?? "",
       appStoreLink: uri.toString(),
-      releaseNotes: releaseNotes?.replaceAll(expRemoveSc, ''),
+      releaseNotes: androidHtmlReleaseNotes
+          ? _parseUnicodeToString(releaseNotes)
+          : releaseNotes
+              ?.replaceAll(expRemoveSc, '')
+              .replaceAll(expRemoveQuote, '"'),
     );
   }
 
@@ -332,6 +343,36 @@ class NewVersionPlus {
       );
     } else {
       throw 'Could not launch appStoreLink';
+    }
+  }
+
+  /// Function for convert text
+  /// _parseUnicodeToString
+  String? _parseUnicodeToString(String? release) {
+    try {
+      if (release == null || release.isEmpty) return release;
+
+      final re = RegExp(
+        r'(%(?<asciiValue>[0-9A-Fa-f]{2}))'
+        r'|(\\u(?<codePoint>[0-9A-Fa-f]{4}))'
+        r'|.',
+      );
+
+      var matches = re.allMatches(release);
+      var codePoints = <int>[];
+      for (var match in matches) {
+        var codePoint =
+            match.namedGroup('asciiValue') ?? match.namedGroup('codePoint');
+        if (codePoint != null) {
+          codePoints.add(int.parse(codePoint, radix: 16));
+        } else {
+          codePoints += match.group(0)!.runes.toList();
+        }
+      }
+      var decoded = String.fromCharCodes(codePoints);
+      return decoded;
+    } catch (e) {
+      return release;
     }
   }
 }

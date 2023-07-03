@@ -1,3 +1,5 @@
+<a href="https://www.buymeacoffee.com/codesfirst" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
+
 Note
 Original repository: https://pub.dev/packages/new_version
 
@@ -6,38 +8,45 @@ The problem with the original repository is that it will no longer be maintained
 # New Version Plus Plugin 🎉
 
 A Flutter plugin that makes it possible to:
-* Check if a user has the most recent version of your app installed.
-* Show the user an alert with a link to the appropriate app store page.
+
+- Check if a user has the most recent version of your app installed.
+- Show the user an alert with a link to the appropriate app store page.
 
 See more at the [Dart Packages page.](https://pub.dartlang.org/packages/new_version_plus)
 
 ![Screenshots](screenshots/both.png)
 
 ## Installation
+
 Add new_version_plus as [a dependency in your `pubspec.yaml` file.](https://flutter.io/using-packages/)
+
 ```
 dependencies:
   new_version_plus: ^0.0.9
 ```
 
 ## Usage
+
 In `main.dart` (or wherever your app is initialized), create an instance of `NewVersionPlus`.
 
 `final newVersionPlus = NewVersionPlus();`
 
 The plugin will automatically use your Flutter package identifier to check the app store. If your app has a different identifier in the Google Play Store or Apple App Store, you can overwrite this by providing values for `androidId` and/or `iOSId`.
 
-*For iOS:* If your app is only available outside the U.S. App Store, you will need to set `iOSAppStoreCountry` to the two-letter country code of the store you want to search. See http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 for a list of ISO Country Codes.
+_For iOS:_ If your app is only available outside the U.S. App Store, you will need to set `iOSAppStoreCountry` to the two-letter country code of the store you want to search. See http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 for a list of ISO Country Codes.
 
 You can then use the plugin in two ways.
 
 ### Quickstart
+
 Calling `showAlertIfNecessary` with your app's `BuildContext` will check if the app can be updated, and will automatically display a platform-specific alert that the user can use to go to the app store.
 
 `newVersionPlus.showAlertIfNecessary(context: context);`
 
 ### Advanced 😎
+
 If you want to create a custom alert or use the app version information differently, call `getVersionStatus`. This will return a `Future<VersionStatus>` with information about the local and app store versions of the app.
+
 ```
 final status = await newVersionPlus.getVersionStatus();
 status.canUpdate // (true)
@@ -47,9 +56,10 @@ status.appStoreLink // (https://itunes.apple.com/us/app/google/id284815942?mt=8)
 ```
 
 If you want to present a customized dialog, you can pass your `VersionStatus` to `showUpdateDialog()`.
+
 ```
 newVersionPlus.showUpdateDialog(
-  context: context, 
+  context: context,
   versionStatus: status,
   dialogTitle: 'Custom dialog title',
   dialogText: 'Custom dialog text',
@@ -60,5 +70,3 @@ newVersionPlus.showUpdateDialog(
 ```
 
 The option was added so that in the android app you can modify the code of your country, with the variable: `androidPlayStoreCountry`
-
-<a href="https://www.buymeacoffee.com/codesfirst" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
