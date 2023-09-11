@@ -154,7 +154,14 @@ class NewVersionPlus {
   /// JSON document.
   Future<VersionStatus?> _getiOSStoreVersion(PackageInfo packageInfo) async {
     final id = iOSId ?? packageInfo.packageName;
-    final parameters = {"bundleId": id};
+    
+    Map<String, dynamic> parameters = {};
+    if(id.contains('.')){
+      parameters['bundleId'] = id;
+    }else{
+      parameters['id']= id;
+    }
+    
     if (iOSAppStoreCountry != null) {
       parameters.addAll({"country": iOSAppStoreCountry!});
     }
