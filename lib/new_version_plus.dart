@@ -154,7 +154,8 @@ class NewVersionPlus {
   /// JSON document.
   Future<VersionStatus?> _getiOSStoreVersion(PackageInfo packageInfo) async {
     final id = iOSId ?? packageInfo.packageName;
-    final parameters = {"bundleId": id};
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final parameters = {"bundleId": id, "t": timestamp.toString()};
     if (iOSAppStoreCountry != null) {
       parameters.addAll({"country": iOSAppStoreCountry!});
     }
