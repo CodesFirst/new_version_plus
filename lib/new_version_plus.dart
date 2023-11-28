@@ -159,10 +159,12 @@ class NewVersionPlus {
       parameters.addAll({"country": iOSAppStoreCountry!});
     }
     var uri = Uri.https("itunes.apple.com", "/lookup", parameters);
+    var response;
     try {
-      final response = await http.get(uri);
+      response = await http.get(uri);
     } catch (e) {
-      debugPrint('Failed to query iOS App Store', e.toString());
+      debugPrint('Failed to query iOS App Store\n' + e.toString());
+      return null;
     }
     if (response.statusCode != 200) {
       debugPrint('Failed to query iOS App Store');
@@ -190,10 +192,12 @@ class NewVersionPlus {
     final id = androidId ?? packageInfo.packageName;
     final uri = Uri.https("play.google.com", "/store/apps/details",
         {"id": id.toString(), "hl": androidPlayStoreCountry ?? "en_US"});
+    var response;
     try {
-      final response = await http.get(uri);
+      response = await http.get(uri);
     } catch (e) {
-      debugPrint('Failed to query Google Play Store', e.toString());
+      debugPrint('Failed to query Google Play Store\n' + e.toString());
+      return null;
     }
     if (response.statusCode != 200) {
       throw Exception("Invalid response code: ${response.statusCode}");
