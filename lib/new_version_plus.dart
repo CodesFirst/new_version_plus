@@ -162,7 +162,7 @@ class NewVersionPlus {
     try {
       final response = await http.get(uri);
     } catch (e) {
-      debugPrint('Failed to query iOS App Store');
+      debugPrint('Failed to query iOS App Store', e.toString());
     }
     if (response.statusCode != 200) {
       debugPrint('Failed to query iOS App Store');
@@ -193,7 +193,7 @@ class NewVersionPlus {
     try {
       final response = await http.get(uri);
     } catch (e) {
-      debugPrint('Failed to query Google Play Store');
+      debugPrint('Failed to query Google Play Store', e.toString());
     }
     if (response.statusCode != 200) {
       throw Exception("Invalid response code: ${response.statusCode}");
