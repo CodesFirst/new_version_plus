@@ -154,7 +154,10 @@ class NewVersionPlus {
   /// JSON document.
   Future<VersionStatus?> _getiOSStoreVersion(PackageInfo packageInfo) async {
     final id = iOSId ?? packageInfo.packageName;
-    final parameters = {"bundleId": id};
+    final parameters = {
+      "bundleId": id,
+      "timestamp": DateTime.now().millisecondsSinceEpoch.toString()
+    };
     if (iOSAppStoreCountry != null) {
       parameters.addAll({"country": iOSAppStoreCountry!});
     }
@@ -185,7 +188,11 @@ class NewVersionPlus {
       PackageInfo packageInfo) async {
     final id = androidId ?? packageInfo.packageName;
     final uri = Uri.https("play.google.com", "/store/apps/details",
-        {"id": id.toString(), "hl": androidPlayStoreCountry ?? "en_US"});
+        {"id": id.toString(), 
+        "hl": androidPlayStoreCountry ?? "en_US",
+        "timestamp": DateTime.now().millisecondsSinceEpoch.toString()
+        }
+      );
     final response = await http.get(uri);
     if (response.statusCode != 200) {
       throw Exception("Invalid response code: ${response.statusCode}");
