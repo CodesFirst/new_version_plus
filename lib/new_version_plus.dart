@@ -154,12 +154,28 @@ class NewVersionPlus {
   /// JSON document.
   Future<VersionStatus?> _getiOSStoreVersion(PackageInfo packageInfo) async {
     final id = iOSId ?? packageInfo.packageName;
-    final parameters = {"bundleId": id};
+    Map<String, dynamic> parameters = {};
+
+    /// programmermager:fix/issue-35-ios-failed-host-lookup
+    if (id.contains('.')) {
+      parameters['bundleId'] = id;
+    } else {
+      parameters['id'] = id;
+    }
+
+    parameters['timestamp'] = DateTime.now().millisecondsSinceEpoch.toString();
+
     if (iOSAppStoreCountry != null) {
       parameters.addAll({"country": iOSAppStoreCountry!});
     }
     var uri = Uri.https("itunes.apple.com", "/lookup", parameters);
-    final response = await http.get(uri);
+    http.Response response;
+    try {
+      response = await http.get(uri);
+    } catch (e) {
+      debugPrint('Failed to query iOS App Store\n$e');
+      return null;
+    }
     if (response.statusCode != 200) {
       debugPrint('Failed to query iOS App Store');
       return null;
@@ -184,9 +200,18 @@ class NewVersionPlus {
   Future<VersionStatus?> _getAndroidStoreVersion(
       PackageInfo packageInfo) async {
     final id = androidId ?? packageInfo.packageName;
-    final uri = Uri.https("play.google.com", "/store/apps/details",
-        {"id": id.toString(), "hl": androidPlayStoreCountry ?? "en_US"});
-    final response = await http.get(uri);
+    final uri = Uri.https("play.google.com", "/store/apps/details", {
+      "id": id.toString(),
+      "hl": androidPlayStoreCountry ?? "en_US",
+      "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+    });
+    http.Response response;
+    try {
+      response = await http.get(uri);
+    } catch (e) {
+      debugPrint('Failed to query Google Play Store\n$e');
+      return null;
+    }
     if (response.statusCode != 200) {
       throw Exception("Invalid response code: ${response.statusCode}");
     }
