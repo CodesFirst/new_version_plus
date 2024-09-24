@@ -1,6 +1,6 @@
 name: new_version_plus
 description: Check if your user has the most recent version of your Flutter app.
-version: 0.0.11
+version: 0.0.12
 homepage: https://github.com/CodesFirst/new_version_plus
 
 environment:
@@ -10,9 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  package_info_plus: ^4.0.2
-  http: ^1.1.0
-  url_launcher: ^6.1.11
+  package_info_plus: ^8.0.2
+  http: ^1.2.2
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:
@@ -24,14 +24,14 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-plugin:
-  platforms:
-    android:
-      default_package: com.codesfirst.new_version_plus
-      pluginClass: new_version_plus
-    ios:
-      default_package: com.codesfirst.new_version_plus
-      pluginClass: new_version_plus
+  plugin:
+    platforms:
+      android:
+        default_package: com.codesfirst.new_version_plus
+        pluginClass: new_version_plus
+      ios:
+        default_package: com.codesfirst.new_version_plus
+        pluginClass: new_version_plus
   # To add assets to your package, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

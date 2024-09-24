@@ -86,3 +86,7 @@
 
 - Add androidHtmlReleaseNotes for get release note in html format
 - Update package version of external plugin
+
+## 0.0.12
+
+- Update package version of external plugin
