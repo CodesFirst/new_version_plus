@@ -24,14 +24,7 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-  plugin:
-    platforms:
-      android:
-        default_package: com.codesfirst.new_version_plus
-        pluginClass: new_version_plus
-      ios:
-        default_package: com.codesfirst.new_version_plus
-        pluginClass: new_version_plus
+
   # To add assets to your package, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
