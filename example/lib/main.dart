@@ -32,7 +32,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // Instantiate NewVersion manager object (Using GCP Console app as example)
     final newVersion = NewVersionPlus(
-      iOSId: 'com.disney.disneyplus', androidId: 'com.whatsapp', androidPlayStoreCountry: "es_ES", androidHtmlReleaseNotes: true, //support country code
+      iOSId: 'com.disney.disneyplus', androidId: 'com.disney.disneyplus', androidPlayStoreCountry: "es_ES", androidHtmlReleaseNotes: true, //support country code
     );
 
     // You can let the plugin handle fetching the status and showing a dialog,

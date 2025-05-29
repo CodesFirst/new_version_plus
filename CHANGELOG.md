@@ -94,3 +94,7 @@
 ## 0.1.0
 
 - Update package version of external plugin
+
+## 0.1.1
+
+- Update package version of external plugin

@@ -52,21 +52,9 @@ class VersionStatus {
   }
 
   //Public Contructor
-  VersionStatus({
-    required this.localVersion,
-    required this.storeVersion,
-    required this.appStoreLink,
-    this.releaseNotes,
-    this.originalStoreVersion,
-  });
+  VersionStatus({required this.localVersion, required this.storeVersion, required this.appStoreLink, this.releaseNotes, this.originalStoreVersion});
 
-  VersionStatus._({
-    required this.localVersion,
-    required this.storeVersion,
-    required this.appStoreLink,
-    this.releaseNotes,
-    this.originalStoreVersion,
-  });
+  VersionStatus._({required this.localVersion, required this.storeVersion, required this.appStoreLink, this.releaseNotes, this.originalStoreVersion});
 }
 
 class NewVersionPlus {
@@ -101,30 +89,16 @@ class NewVersionPlus {
   //Html original body request
   final bool androidHtmlReleaseNotes;
 
-  NewVersionPlus({
-    this.androidId,
-    this.iOSId,
-    this.iOSAppStoreCountry,
-    this.forceAppVersion,
-    this.androidPlayStoreCountry,
-    this.androidHtmlReleaseNotes = false,
-  });
+  NewVersionPlus({this.androidId, this.iOSId, this.iOSAppStoreCountry, this.forceAppVersion, this.androidPlayStoreCountry, this.androidHtmlReleaseNotes = false});
 
   /// This checks the version status, then displays a platform-specific alert
   /// with buttons to dismiss the update alert, or go to the app store.
-  showAlertIfNecessary({
-    required BuildContext context,
-    LaunchModeVersion launchModeVersion = LaunchModeVersion.normal,
-  }) async {
+  showAlertIfNecessary({required BuildContext context, LaunchModeVersion launchModeVersion = LaunchModeVersion.normal}) async {
     final VersionStatus? versionStatus = await getVersionStatus();
 
     if (versionStatus != null && versionStatus.canUpdate) {
       // ignore: use_build_context_synchronously
-      showUpdateDialog(
-        context: context,
-        versionStatus: versionStatus,
-        launchModeVersion: launchModeVersion,
-      );
+      showUpdateDialog(context: context, versionStatus: versionStatus, launchModeVersion: launchModeVersion);
     }
   }
 
@@ -248,16 +222,8 @@ class NewVersionPlus {
 
   /// Update action fun
   /// show modal
-  void _updateActionFunc({
-    required String appStoreLink,
-    required bool allowDismissal,
-    required BuildContext context,
-    LaunchMode launchMode = LaunchMode.platformDefault,
-  }) {
-    launchAppStore(
-      appStoreLink,
-      launchMode: launchMode,
-    );
+  void _updateActionFunc({required String appStoreLink, required bool allowDismissal, required BuildContext context, LaunchMode launchMode = LaunchMode.platformDefault}) {
+    launchAppStore(appStoreLink, launchMode: launchMode);
     if (allowDismissal) {
       Navigator.of(context, rootNavigator: true).pop();
     }
@@ -281,9 +247,7 @@ class NewVersionPlus {
     LaunchModeVersion launchModeVersion = LaunchModeVersion.normal,
   }) async {
     final dialogTitleWidget = Text(dialogTitle);
-    final dialogTextWidget = Text(
-      dialogText ?? 'You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}',
-    );
+    final dialogTextWidget = Text(dialogText ?? 'You can now update this app from ${versionStatus.localVersion} to ${versionStatus.storeVersion}');
 
     final launchMode = launchModeVersion == LaunchModeVersion.external ? LaunchMode.externalApplication : LaunchMode.platformDefault;
 
@@ -292,21 +256,11 @@ class NewVersionPlus {
     List<Widget> actions = [
       Platform.isAndroid
           ? TextButton(
-              onPressed: () => _updateActionFunc(
-                allowDismissal: allowDismissal,
-                context: context,
-                appStoreLink: versionStatus.appStoreLink,
-                launchMode: launchMode,
-              ),
+              onPressed: () => _updateActionFunc(allowDismissal: allowDismissal, context: context, appStoreLink: versionStatus.appStoreLink, launchMode: launchMode),
               child: updateButtonTextWidget,
             )
           : CupertinoDialogAction(
-              onPressed: () => _updateActionFunc(
-                allowDismissal: allowDismissal,
-                context: context,
-                appStoreLink: versionStatus.appStoreLink,
-                launchMode: launchMode,
-              ),
+              onPressed: () => _updateActionFunc(allowDismissal: allowDismissal, context: context, appStoreLink: versionStatus.appStoreLink, launchMode: launchMode),
               child: updateButtonTextWidget,
             ),
     ];
@@ -315,15 +269,7 @@ class NewVersionPlus {
       final dismissButtonTextWidget = Text(dismissButtonText);
       dismissAction = dismissAction ?? () => Navigator.of(context, rootNavigator: true).pop();
       actions.add(
-        Platform.isAndroid
-            ? TextButton(
-                onPressed: dismissAction,
-                child: dismissButtonTextWidget,
-              )
-            : CupertinoDialogAction(
-                onPressed: dismissAction,
-                child: dismissButtonTextWidget,
-              ),
+        Platform.isAndroid ? TextButton(onPressed: dismissAction, child: dismissButtonTextWidget) : CupertinoDialogAction(onPressed: dismissAction, child: dismissButtonTextWidget),
       );
     }
 
@@ -331,33 +277,20 @@ class NewVersionPlus {
       context: context,
       barrierDismissible: allowDismissal,
       builder: (BuildContext context) {
-        return WillPopScope(
-            child: Platform.isAndroid
-                ? AlertDialog(
-                    title: dialogTitleWidget,
-                    content: dialogTextWidget,
-                    actions: actions,
-                  )
-                : CupertinoAlertDialog(
-                    title: dialogTitleWidget,
-                    content: dialogTextWidget,
-                    actions: actions,
-                  ),
-            onWillPop: () => Future.value(allowDismissal));
+        return PopScope(
+          canPop: allowDismissal,
+          child: Platform.isAndroid
+              ? AlertDialog(title: dialogTitleWidget, content: dialogTextWidget, actions: actions)
+              : CupertinoAlertDialog(title: dialogTitleWidget, content: dialogTextWidget, actions: actions),
+        );
       },
     );
   }
 
   /// Launches the Apple App Store or Google Play Store page for the app.
-  Future<void> launchAppStore(
-    String appStoreLink, {
-    LaunchMode launchMode = LaunchMode.platformDefault,
-  }) async {
+  Future<void> launchAppStore(String appStoreLink, {LaunchMode launchMode = LaunchMode.platformDefault}) async {
     if (await canLaunchUrl(Uri.parse(appStoreLink))) {
-      await launchUrl(
-        Uri.parse(appStoreLink),
-        mode: launchMode,
-      );
+      await launchUrl(Uri.parse(appStoreLink), mode: launchMode);
     } else {
       throw 'Could not launch appStoreLink';
     }
