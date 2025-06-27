@@ -89,7 +89,18 @@ class NewVersionPlus {
   //Html original body request
   final bool androidHtmlReleaseNotes;
 
-  NewVersionPlus({this.androidId, this.iOSId, this.iOSAppStoreCountry, this.forceAppVersion, this.androidPlayStoreCountry, this.androidHtmlReleaseNotes = false});
+  /// An optional flag to indicate whether the determined iOS ID is a bundle ID or an Apple ID.
+  final bool? iOSIdIsBundleId;
+
+  NewVersionPlus({
+    this.androidId,
+    this.iOSId,
+    this.iOSAppStoreCountry,
+    this.forceAppVersion,
+    this.androidPlayStoreCountry,
+    this.androidHtmlReleaseNotes = false,
+    this.iOSIdIsBundleId
+  });
 
   /// This checks the version status, then displays a platform-specific alert
   /// with buttons to dismiss the update alert, or go to the app store.
@@ -132,11 +143,9 @@ class NewVersionPlus {
     Map<String, dynamic> parameters = {};
 
     /// programmermager:fix/issue-35-ios-failed-host-lookup
-    if (id.contains('.')) {
-      parameters['bundleId'] = id;
-    } else {
-      parameters['id'] = id;
-    }
+    final idParam = ((iOSIdIsBundleId == null && id.contains('.')) || iOSIdIsBundleId == true)
+        ? 'bundleId' : 'id';
+    parameters[idParam] = id;
 
     parameters['timestamp'] = DateTime.now().millisecondsSinceEpoch.toString();
 
